@@ -66,9 +66,57 @@ void updateTouchSensor() {
 }
 
 //--------------------------------------------------
+void drawHorizontalTouches() {
+  for (uint8_t i = 0; i < 12; i++) {
+    // it if *is* touched and *wasnt* touched before, alert!
+    if (currtouched & _BV(i)) {
+      int w = width / 12;
+      int x = i * w;
+      int y = height - 30;
+      display.fillRect(x, y, w, w, BLACK);
+    }
+  }
+}
+
+//--------------------------------------------------
+void drawCircularTouches() {
+  // sequence of the pads going from 1 o'clock, clockwise
+  // when the connector is at the top
+  // 7 10 11 9 8 6 5 3 2 0 1 4
+  int touchPads[12] = {7, 10, 11, 9, 8, 6, 5, 3, 2, 0, 1, 4};
+  int cx = width / 2;
+  int cy = height / 2;
+  float w = 90;
+  float r = 20;
+  float angle = 0;
+  float angleOffset = PI / 2 + TWO_PI / 24;
+
+  for (uint8_t i = 0; i < 12; i++) {
+    angle = (float)i * TWO_PI / 12;
+    int x = cx + w * cos(angleOffset + angle);
+    int y = cy + w * sin(angleOffset + angle);
+    if (currtouched & _BV(touchPads[i])) {
+      display.fillCircle(x, y, r, BLACK);
+    } else {
+      display.fillCircle(x, y, r, GRAY);
+    }
+  }
+}
+
+//--------------------------------------------------
+void drawCounter() {
+  // the bouncy ball
+  unsigned long now = millis();
+  float a = (float)now / 400;
+  int x = 20 + 10 * cos(a);
+  int y = 20 + 10 * sin(a);
+  display.fillCircle(x, y, 5, BLACK);
+}
+
+//--------------------------------------------------
 void setup() {
   Serial.begin((57600));                  // start a serial port at 57600 BAUD
-  delay(1000);                            // wait one second aka 1000ms
+  delay(100);                             // wait 100ms
   Serial.println("Display + Touch Test"); // send a message over serial
 
   setupDisplay();
@@ -78,14 +126,14 @@ void setup() {
   display.setCursor(5, 5);
   display.println(" Display works!!!!");
   display.refresh(); // actually sends it to the display
-  delay(1000);
+  delay(500);
 
   setupTouchSensor();
   display.clearDisplay();
   display.setCursor(5, 5);
   display.println(" Setup touch");
   display.refresh();
-  delay(1000);
+  delay(100);
 
   display.clearDisplay();
 }
@@ -98,24 +146,16 @@ void loop() {
   if (now > lastFrame + 1000 / 60) { // do this every 60fps
     lastFrame = now;
 
-    updateTouchSensor();
+    updateTouchSensor(); // get data from the capacitive touch sensor
 
-    display.clearDisplayBuffer();
-    // the bouncy ball
-    int x = (now / 10) % 400;
-    int y = height / 2 + 100 * sin((float)now / 400);
-    display.fillCircle(x, y, 10, BLACK);
+    display.clearDisplayBuffer(); // clear our display buffer
 
-    // draw touches!
-    for (uint8_t i = 0; i < 12; i++) {
-      // it if *is* touched and *wasnt* touched before, alert!
-      if (currtouched & _BV(i)) {
-        int w = width / 12;
-        x = i * w;
-        y = height - 30;
-        display.fillRect(x, y, w, w, BLACK);
-      }
-    }
+    drawCounter(); // draw something that moves
+    // Draw horizontal touches!
+    // drawHorizontalTouches();
+
+    // Draw Circular touches
+    drawCircularTouches(); // draw the touches we see.
 
     display.refresh(); // actually sends it to the display
   }

@@ -24,7 +24,7 @@ unsigned long lastFrame = 0;
 
 // SHARP display named display
 Adafruit_SharpMem display =
-    Adafruit_SharpMem(&SPI, PIN_LCD_CS, width, height, 8000000);
+    Adafruit_SharpMem(&SPI, PIN_LCD_CS, width, height, 4000000);
 
 // setup the display
 void setupDisplay() {
@@ -101,7 +101,6 @@ void setup() {
   Serial.println("Display + Accelerometer Test"); // send a message over serial
 
   setupDisplay();
-
   display.setTextSize(3);
   display.setTextColor(BLACK);
   display.setCursor(5, 5);

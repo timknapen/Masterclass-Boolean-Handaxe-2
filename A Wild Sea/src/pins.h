@@ -5,12 +5,14 @@
 #define PIN_SDA 47
 #define PIN_SCL 48
 
-// MPR121 capacitive touch sensor pins
-
 // Colors
 #define BLACK 0
 #define WHITE 1
 #define GRAY 2
+
+// screen dimensions
+const int height = 240;
+const int width = 400;
 
 // RGB LED on board
 #define PIN_RGB_LED 38
